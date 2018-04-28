@@ -4,7 +4,8 @@
   "description": "Amazon Replacement with SQL",
   "main": "bamazon.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "bamazon.js"
   },
   "repository": {
     "type": "git",
@@ -22,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/TonyBCodes/bamazon/issues"
   },
-  "homepage": "https://github.com/TonyBCodes/bamazon#readme"
+  "homepage": "https://github.com/TonyBCodes/bamazon#readme",
+  "dependencies": {
+    "inquirer": "^5.2.0"
+  }
 }
