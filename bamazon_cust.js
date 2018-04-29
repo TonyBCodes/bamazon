@@ -53,6 +53,7 @@ function cust_menu() {
 
             switch (choice.customer_menu) {
                 case "See Products For Sale": {
+                    show_products();
                     console.log("products for sale");
                     break;
                 }
