@@ -36,3 +36,7 @@ select * from bam_prods;
 -- clear the table
 USE bamazon_db;
 DROP TABLE bam_prods;
+
+-- pick a product using specific prod_id
+USE bamazon_db;
+SELECT * FROM bam_prods WHERE prod_id = 7;
