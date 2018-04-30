@@ -40,3 +40,7 @@ DROP TABLE bam_prods;
 -- pick a product using specific prod_id
 USE bamazon_db;
 SELECT * FROM bam_prods WHERE prod_id = 7;
+
+-- update quantity for a product
+USE bamazon_db;
+UPDATE bam_prods SET prod_stock = 18 WHERE prod_id = 7;

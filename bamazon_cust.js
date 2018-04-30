@@ -40,7 +40,7 @@ function buy_products() {
         {
             name: "product_num",
             type: "input",
-            message: "What woould you like to buy?  Please enter the ID#."
+            message: "What would you like to buy?  Please enter the ID#."
         },
         {
             name: "amount",
@@ -58,7 +58,7 @@ function buy_products() {
         }
     ]).then(function (answer) {
         console.log(answer);
-        connection.query("SELECT * FROM bam_prods WHERE prod_id = answer.product_num", function (err, res) {
+        bam_database.query("SELECT * FROM bam_prods WHERE prod_id = answer.product_num", function (err, res) {
             if (err) throw err;
         };
 
@@ -81,7 +81,7 @@ function buy_products() {
                 in_stock -= res.prod_stock;
             }
 
-            connection.query("UPDATE bam_prods SET prod_stock = instock WHERE prod_id = answer.product_num", function (err, res) {
+            bam_database.query("UPDATE bam_prods SET prod_stock = instock WHERE prod_id = answer.product_num", function (err, res) {
                 if (err) throw err;
             }
         }
