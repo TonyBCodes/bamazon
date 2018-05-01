@@ -3,10 +3,10 @@ var inquirer = require("inquirer");
 var mysql = require("mysql");
 
 var bam_database = mysql.createConnection({
-    host: "127.0.0.1",
+    host: "localhost",
     port: 3306,
-    user: "root",
-    password: "09Les19AntCWH2014",
+    user: "myproject",
+    password: "My-Project!123",
     database: "bamazon_db"
 });
 
@@ -151,93 +151,25 @@ function add_new_prod() {
         }
     ]).then(function (answer) {
 
-        var instock = 0;
-        answer.prod_num = parseInt(answer.prod_num);
-        bam_database.query("SELECT * FROM bam_prods WHERE prod_id = ?", [answer.product_num], function (err, res) {
-            if (err) throw err;
-            instock = res.prod_stock + parseInt(answer.amount);
-        };
-
-        bam_database.query("UPDATE bam_prods SET prod_stock = ? WHERE prod_id = ?", [instock, answer.product_num], function (err, res) {
-            if (err) throw err;
-            console.log("The quantity of " + res.prod_name + " is now " + res.prod_stock);
-        };
-
-    });
-
-    bam_database.query("SELECT * FROM bam_prods WHERE prod_stock < 5", function (err, res) {
-        if (err) {
-            throw err;
-            console.log("Error with DB");
-        }
-        else {
-            console.log("Product ID" + "\t" + "Product Name" + "\t" + "Product Department" + "\t" + "Price" + "\t" + "Quant In Stock");
-            console.log("--------------------------------------------------------------------------------");
-            for (var i = 0; i < res.length; i++) {
-                console.log(res[i].prod_id + "\t" + res[i].prod_name + "\t" + res[i].prod_dept + "\t" + res[i].prod_price + "\t" + res[i].prod_stock);
+        bam_database.query("INSERT INTO bam_prods (prod_name, prod_dept, prod_price, prod_stock) VALUES (?)", [[answer.new_prod_name, answer.new_prod_dept, answer.new_prod_price, answer.new_prod_quant]], function (err, res) {
+            if (err) {
+                throw err;
+                console.log("Error with DB");
             }
-        };
+            else {
+                console.log("Product Added");
+            };
+        });
+
     });
+
 };
 
 
-function buy_products() {
-    inquirer.prompt([
-        {
-            name: "product_num",
-            type: "input",
-            message: "What woould you like to buy?  Please enter the ID#."
-        },
-        {
-            name: "amount",
-            type: "input",
-            message: "Please enter the quantity you would like to buy.",
-            validate: function (quant) {
-                if (Number.isInteger(quant) && (quant>0)) {
-                    return true;
-                }
-                else {
-                    console.log("The quantity to buy must be a positive whole number.")
-                    setTimeout(function () { return false; },3000);
-                }
-            }
-        }
-    ]).then(function (answer) {
-        console.log(answer);
-        connection.query("SELECT * FROM bam_prods WHERE prod_id = answer.product_num", function (err, res) {
-            if (err) throw err;
-        };
-
-        var in_stock = res.prod_stock;
-
-        if (res.prod_stock == 0) {
-            console.log("Sorry, we are sold out of " + res.prod_name + ".");
-        }
-        else {
-
-            if (res.prod_stock >= parseInt(answer.amount)) {
-                console.log("You bought " + parseInt(answer.amount) + " of " + res.prod_name + ".");
-                console.log("Your bill is $ " + (parseInt(answer.amount) * res.prod_price));
-                in_stock -= parseInt(answer.amount);
-            }
-
-            if (res.prod_stock < parseInt(answer.amount)) {
-                console.log("You bought " + res.prod_stock + " of " + res.prod_name + ".");
-                console.log("Your bill is $ " + (res.prod_stock * res.prod_price));
-                in_stock -= res.prod_stock;
-            }
-
-            connection.query("UPDATE bam_prods SET prod_stock = instock WHERE prod_id = answer.product_num", function (err, res) {
-                if (err) throw err;
-            }
-        }
-    });
-}
-
-View Products for Sale
-View Low Inventory
-Add to Inventory
-Add New Product
+//View Products for Sale
+//View Low Inventory
+//Add to Inventory
+//Add New Product
 
 function sup_menu() {
     inquirer.prompt([
@@ -278,7 +210,7 @@ function sup_menu() {
             }
 
             console.log("Running supervisor menu again");
-            cust_menu();
+            sup_menu();
         }
         else {
             console.log("Ending - Goodbye")

@@ -5,6 +5,7 @@ CREATE DATABASE bamazon_db;
 USE bamazon_db;
 
 --  set up the products table
+USE bamazon_db;
 CREATE TABLE bam_prods(
 	prod_id INT AUTO_INCREMENT NOT NULL,
 	prod_name varchar(30) NOT NULL,

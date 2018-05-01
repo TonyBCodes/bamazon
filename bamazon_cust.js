@@ -1,16 +1,17 @@
 // load inquirer NPM package
 var inquirer = require("inquirer");
 var mysql = require("mysql");
+var clear = require('clear');
 
 var bam_database = mysql.createConnection({
-    host: "127.0.0.1",
+    host: "localhost",
     port: 3306,
-    user: "root",
-    password: "09Les19AntCWH2014",
+    user: "myproject",
+    password: "My-Project!123",
     database: "bamazon_db"
 });
 
-console.log(bam_database);
+// console.log(bam_database);
 
 //CREATE TABLE bam_prods(
 //    prod_id INT AUTO_INCREMENT NOT NULL,
@@ -22,15 +23,18 @@ console.log(bam_database);
 //);
 
 function show_products() {
+    clear();
     bam_database.query("SELECT * FROM bam_prods", function (err, res) {
         if (err) {
             throw err;
             console.log("Error with DB");
+            return;
         }
         else {
             for (var i = 0; i < res.length; i++) {
                 console.log("Product ID #: " + res[i].prod_id + "\t| Name: " + res[i].prod_name + "\t| Price: $" + res[i].prod_price);
             }
+            return;
         };
     });
 };
@@ -47,48 +51,64 @@ function buy_products() {
             type: "input",
             message: "Please enter the quantity you would like to buy.",
             validate: function (quant) {
-                if (Number.isInteger(quant) && (quant>0)) {
+                quant = parseInt(quant);
+                console.log(quant);
+                console.log(Number.isInteger(quant));
+                console.log(quant > 0);
+                if (Number.isInteger(quant) && (quant > 0)) {
                     return true;
                 }
                 else {
                     console.log("The quantity to buy must be a positive whole number.")
-                    setTimeout(function () { return false; },3000);
+                    setTimeout(function () { return false; }, 3000);
                 }
             }
         }
     ]).then(function (answer) {
-        console.log(answer);
-        bam_database.query("SELECT * FROM bam_prods WHERE prod_id = answer.product_num", function (err, res) {
-            if (err) throw err;
-        };
-
-        var in_stock = res.prod_stock;
-
-        if (res.prod_stock == 0) {
-            console.log("Sorry, we are sold out of " + res.prod_name + ".");
-        }
-        else {
-
-            if (res.prod_stock >= parseInt(answer.amount)) {
-                console.log("You bought " + parseInt(answer.amount) + " of " + res.prod_name + ".");
-                console.log("Your bill is $ " + (parseInt(answer.amount) * res.prod_price));
-                in_stock -= parseInt(answer.amount);
+        bam_database.query("SELECT * FROM bam_prods WHERE prod_id = ?", [answer.product_num], function (err, res) {
+            if (err) {
+                console.log("There was an error with the database.")
+                setTimeout(function () { return false; }, 3000);
+                throw err;
+                return;
             }
+            else {
+                console.log(res);
+                var in_stock = res[0].prod_stock;
+                console.log(in_stock);
+                console.log(res[0].prod_stock);
 
-            if (res.prod_stock < parseInt(answer.amount)) {
-                console.log("You bought " + res.prod_stock + " of " + res.prod_name + ".");
-                console.log("Your bill is $ " + (res.prod_stock * res.prod_price));
-                in_stock -= res.prod_stock;
-            }
+                if (res[0].prod_stock == 0) {
+                    console.log("Sorry, we are sold out of " + res[0].prod_name + ".");
+                    return;
+                }
+                else {
+                    if (res[0].prod_stock >= parseInt(answer.amount)) {
+                        console.log("You bought " + parseInt(answer.amount) + " of " + res[0].prod_name + ".");
+                        console.log("Your bill is $ " + (parseInt(answer.amount) * res[0].prod_price));
+                        in_stock -= parseInt(answer.amount);
+                    }
+                    if (res[0].prod_stock < parseInt(answer.amount)) {
+                        console.log("You bought " + res[0].prod_stock + " of " + res[0].prod_name + ".");
+                        console.log("Your bill is $ " + (res[0].prod_stock * res[0].prod_price));
+                        in_stock -= res[0].prod_stock;
+                    }
+                    console.log(in_stock);
+                    bam_database.query("UPDATE bam_prods SET prod_stock = ? WHERE prod_id = ?", [in_stock, answer.product_num], function (err, res) {
+                        if (err) throw err;
+                    });
+                    setTimeout(function () { return; }, 3000);
 
-            bam_database.query("UPDATE bam_prods SET prod_stock = instock WHERE prod_id = answer.product_num", function (err, res) {
-                if (err) throw err;
+                }
+
             }
-        }
+        });
+
     });
 }
 
 function cust_menu() {
+    clear();
     inquirer.prompt([
 
         {
@@ -98,7 +118,6 @@ function cust_menu() {
             choices: ["See Products For Sale", "Purchase a Product", "Exit"]
         }
 
-        // After the prompt, store the user's response in a variable called location.
     ]).then(function (choice) {
 
         if (choice.customer_menu !== "Exit") {
@@ -112,6 +131,7 @@ function cust_menu() {
                 case "Purchase a Product": {
                     buy_products();
                     console.log("purchase a product");
+                    clear();
                     break;
                 }
             }
@@ -120,10 +140,14 @@ function cust_menu() {
             cust_menu();
         }
         else {
-            console.log("Ending - Goodbye")
+            console.log("Ending - Goodbye");
+            return;
         }
 
     }
-    )};
+    )
+};
 
-cust_menu();
+show_products();
+buy_products();
+//cust_menu();
