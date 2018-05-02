@@ -66,6 +66,7 @@ function add_to_inv() {
             type: "input",
             message: "Please enter the quantity you would like to add.",
             validate: function (quant) {
+                quant = parseInt(quant);
                 if (Number.isInteger(quant) && (quant > 0)) {
                     return true;
                 }
@@ -79,18 +80,22 @@ function add_to_inv() {
 
         var instock = 0;
         answer.prod_num = parseInt(answer.prod_num);
-        bam_database.query("SELECT * FROM bam_prods WHERE prod_id = ?",[answer.product_num], function (err, res) {
+        bam_database.query("SELECT * FROM bam_prods WHERE prod_id = ?", [answer.product_num], function (err, res) {
             if (err) throw err;
             instock = res.prod_stock + parseInt(answer.amount);
-        };
+        });
 
         bam_database.query("UPDATE bam_prods SET prod_stock = ? WHERE prod_id = ?", [instock, answer.product_num], function (err, res) {
-            if (err) throw err;
-            console.log("The quantity of " + res.prod_name + " is now " + res.prod_stock);
-        };
+            if (err) {
+                throw err;
+            }
+            else {
+                console.log("The quantity of " + res.prod_name + " is now " + res.prod_stock);
+            }
+        });
 
     });
-};
+}
 
 function add_new_prod() {
     var depts;
@@ -119,6 +124,7 @@ function add_new_prod() {
             type: "input",
             message: "Enter the quantity of the initial stock.",
             validate: function (quant) {
+                quant = parseInt(quant);
                 if (Number.isInteger(quant) && (quant > 0)) {
                     return true;
                 }
@@ -133,7 +139,7 @@ function add_new_prod() {
             type: "list",
             message: "Enter the name of the department to which the product belongs.  Use supervisor view to create a new department.",
             choices: depts
-        }
+        },
         {
             name: "new_prod_price",
             type: "input",
@@ -219,4 +225,6 @@ function sup_menu() {
     }
     )};
 
-sup_menu();
+//sup_menu();
+//add_to_inv();
+add_new_prod();

@@ -148,6 +148,6 @@ function cust_menu() {
     )
 };
 
-show_products();
-buy_products();
-//cust_menu();
+//show_products();
+//buy_products();
+cust_menu();
